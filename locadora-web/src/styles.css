@@ -1,3 +1,27 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+@plugin 'daisyui' {
+  themes: light --default;
+}
+@plugin 'daisyui/theme' {
+  name: 'light';
+  default: true;
+  --color-base-100: #ffffff;
+  --color-base-200: #f4f6f8;
+  --color-base-300: #e2e8ed;
+  --color-base-content: #172b3a;
+  --color-primary: #145c70;
+  --color-primary-content: #ffffff;
+  --color-secondary: #c56b42;
+  --color-secondary-content: #ffffff;
+  --color-accent: #dca54e;
+  --color-accent-content: #172b3a;
+  --color-neutral: #263a47;
+  --color-neutral-content: #ffffff;
+}
+html { scroll-behavior: smooth; }
+body { margin: 0; font-family: 'Trebuchet MS', 'Segoe UI', sans-serif; }
+:focus-visible { outline: 3px solid var(--color-secondary); outline-offset: 2px; }
+.poster { display: grid; place-items: center; position: relative; overflow: hidden; min-height: 210px; padding: 1.5rem; color: white; text-align: center; isolation: isolate; }
+.poster::before { content: ''; position: absolute; inset: 18px; z-index: -1; border: 1px solid rgba(255,255,255,.5); }
+.poster::after { content: 'PASSATEMPO'; position: absolute; bottom: 28px; font-size: .55rem; letter-spacing: .35em; opacity: .8; }
+.poster-teal { background: #145c70; }.poster-orange { background: #a85b3f; }.poster-blue { background: #507b97; }.poster-navy { background: #263a47; }
