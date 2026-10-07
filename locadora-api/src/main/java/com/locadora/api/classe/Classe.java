@@ -21,7 +21,8 @@ public class Classe {
     @Column(nullable = false)
     private Integer days;
 
-    protected Classe() {}
+    protected Classe() {
+    }
 
     public Classe(String name, BigDecimal price, Integer days) {
         this.name = name;
@@ -29,10 +30,22 @@ public class Classe {
         this.days = days;
     }
 
-    public Long getId() { return id; }
-    public String getName() { return name; }
-    public BigDecimal getPrice() { return price; }
-    public Integer getDays() { return days; }
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public Integer getDays() {
+        return days;
+    }
+
     public void update(String name, BigDecimal price, Integer days) {
         this.name = name;
         this.price = price;

@@ -18,13 +18,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class DiretorController {
     private final DiretorService service;
 
-    public DiretorController(DiretorService service) { this.service = service; }
+    public DiretorController(DiretorService service) {
+        this.service = service;
+    }
 
     @GetMapping
-    public List<DiretorResponse> list() { return service.list(); }
+    public List<DiretorResponse> list() {
+        return service.list();
+    }
 
     @GetMapping("/{id}")
-    public DiretorResponse get(@PathVariable Long id) { return service.get(id); }
+    public DiretorResponse get(@PathVariable Long id) {
+        return service.get(id);
+    }
 
     @PostMapping
     public ResponseEntity<DiretorResponse> create(@Valid @RequestBody DiretorRequest request) {

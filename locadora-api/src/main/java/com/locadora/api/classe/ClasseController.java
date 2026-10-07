@@ -18,13 +18,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class ClasseController {
     private final ClasseService service;
 
-    public ClasseController(ClasseService service) { this.service = service; }
+    public ClasseController(ClasseService service) {
+        this.service = service;
+    }
 
     @GetMapping
-    public List<ClasseResponse> list() { return service.list(); }
+    public List<ClasseResponse> list() {
+        return service.list();
+    }
 
     @GetMapping("/{id}")
-    public ClasseResponse get(@PathVariable Long id) { return service.get(id); }
+    public ClasseResponse get(@PathVariable Long id) {
+        return service.get(id);
+    }
 
     @PostMapping
     public ResponseEntity<ClasseResponse> create(@Valid @RequestBody ClasseRequest request) {

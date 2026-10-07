@@ -16,10 +16,22 @@ public class Diretor {
     @Column(nullable = false, length = 120)
     private String name;
 
-    protected Diretor() {}
+    protected Diretor() {
+    }
 
-    public Diretor(String name) { this.name = name; }
-    public Long getId() { return id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public Diretor(String name) {
+        this.name = name;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

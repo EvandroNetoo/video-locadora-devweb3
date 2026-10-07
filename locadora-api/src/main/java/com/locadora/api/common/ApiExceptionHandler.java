@@ -20,7 +20,8 @@ public class ApiExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> invalid(MethodArgumentNotValidException exception) {
         Map<String, String> fields = new LinkedHashMap<>();
-        exception.getBindingResult().getFieldErrors().forEach(error -> fields.putIfAbsent(error.getField(), error.getDefaultMessage()));
+        exception.getBindingResult().getFieldErrors()
+                .forEach(error -> fields.putIfAbsent(error.getField(), error.getDefaultMessage()));
         return ResponseEntity.badRequest().body(Map.of("message", "Revise os campos informados", "fields", fields));
     }
 
@@ -31,6 +32,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, String>> conflict() {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "O registro possui vínculos e não pode ser excluído"));
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("message", "O registro possui vínculos e não pode ser excluído"));
     }
 }

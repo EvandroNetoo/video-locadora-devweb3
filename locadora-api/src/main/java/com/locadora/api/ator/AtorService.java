@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class AtorService {
     private final AtorRepository repository;
 
-    public AtorService(AtorRepository repository) { this.repository = repository; }
+    public AtorService(AtorRepository repository) {
+        this.repository = repository;
+    }
 
     @Transactional(readOnly = true)
     public List<AtorResponse> list() {
@@ -18,7 +20,9 @@ public class AtorService {
     }
 
     @Transactional(readOnly = true)
-    public AtorResponse get(Long id) { return AtorResponse.from(find(id)); }
+    public AtorResponse get(Long id) {
+        return AtorResponse.from(find(id));
+    }
 
     @Transactional
     public AtorResponse create(AtorRequest request) {
@@ -33,7 +37,10 @@ public class AtorService {
     }
 
     @Transactional
-    public void delete(Long id) { repository.delete(find(id)); repository.flush(); }
+    public void delete(Long id) {
+        repository.delete(find(id));
+        repository.flush();
+    }
 
     private Ator find(Long id) {
         return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Ator não encontrado"));

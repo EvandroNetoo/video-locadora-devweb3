@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class DiretorService {
     private final DiretorRepository repository;
 
-    public DiretorService(DiretorRepository repository) { this.repository = repository; }
+    public DiretorService(DiretorRepository repository) {
+        this.repository = repository;
+    }
 
     @Transactional(readOnly = true)
     public List<DiretorResponse> list() {
@@ -18,7 +20,9 @@ public class DiretorService {
     }
 
     @Transactional(readOnly = true)
-    public DiretorResponse get(Long id) { return DiretorResponse.from(find(id)); }
+    public DiretorResponse get(Long id) {
+        return DiretorResponse.from(find(id));
+    }
 
     @Transactional
     public DiretorResponse create(DiretorRequest request) {
@@ -33,7 +37,10 @@ public class DiretorService {
     }
 
     @Transactional
-    public void delete(Long id) { repository.delete(find(id)); repository.flush(); }
+    public void delete(Long id) {
+        repository.delete(find(id));
+        repository.flush();
+    }
 
     private Diretor find(Long id) {
         return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Diretor não encontrado"));

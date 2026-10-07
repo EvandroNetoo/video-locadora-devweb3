@@ -18,13 +18,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class AtorController {
     private final AtorService service;
 
-    public AtorController(AtorService service) { this.service = service; }
+    public AtorController(AtorService service) {
+        this.service = service;
+    }
 
     @GetMapping
-    public List<AtorResponse> list() { return service.list(); }
+    public List<AtorResponse> list() {
+        return service.list();
+    }
 
     @GetMapping("/{id}")
-    public AtorResponse get(@PathVariable Long id) { return service.get(id); }
+    public AtorResponse get(@PathVariable Long id) {
+        return service.get(id);
+    }
 
     @PostMapping
     public ResponseEntity<AtorResponse> create(@Valid @RequestBody AtorRequest request) {

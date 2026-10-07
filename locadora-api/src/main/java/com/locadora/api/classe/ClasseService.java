@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class ClasseService {
     private final ClasseRepository repository;
 
-    public ClasseService(ClasseRepository repository) { this.repository = repository; }
+    public ClasseService(ClasseRepository repository) {
+        this.repository = repository;
+    }
 
     @Transactional(readOnly = true)
     public List<ClasseResponse> list() {
@@ -18,7 +20,9 @@ public class ClasseService {
     }
 
     @Transactional(readOnly = true)
-    public ClasseResponse get(Long id) { return ClasseResponse.from(find(id)); }
+    public ClasseResponse get(Long id) {
+        return ClasseResponse.from(find(id));
+    }
 
     @Transactional
     public ClasseResponse create(ClasseRequest request) {
@@ -33,7 +37,10 @@ public class ClasseService {
     }
 
     @Transactional
-    public void delete(Long id) { repository.delete(find(id)); repository.flush(); }
+    public void delete(Long id) {
+        repository.delete(find(id));
+        repository.flush();
+    }
 
     private Classe find(Long id) {
         return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Classe não encontrada"));

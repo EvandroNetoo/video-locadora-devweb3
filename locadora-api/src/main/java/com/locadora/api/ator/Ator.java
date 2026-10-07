@@ -16,10 +16,22 @@ public class Ator {
     @Column(nullable = false, length = 120)
     private String name;
 
-    protected Ator() {}
+    protected Ator() {
+    }
 
-    public Ator(String name) { this.name = name; }
-    public Long getId() { return id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public Ator(String name) {
+        this.name = name;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
