@@ -1,6 +1,6 @@
 # Especificação da aplicação web
 
-Esta especificação detalha a interface descrita em [../spec.md](../spec.md). O código atual contém o esqueleto Angular 21, sem rotas ou telas de negócio. A interface prevista consome a API em `locadora-api/`; não calcula nem decide regras de negócio por conta própria.
+Esta especificação detalha a interface descrita em [../spec.md](../spec.md). A aplicação Angular 21 integra o catálogo, os detalhes de títulos e os CRUDs de atores, diretores, classes, títulos e itens com a API em `locadora-api/`. Clientes e locações ainda usam dados de demonstração. O catálogo apresenta o total de exemplares cadastrados; a disponibilidade será integrada quando o módulo de locações existir. A interface não decide regras de negócio por conta própria.
 
 ## Público e navegação
 

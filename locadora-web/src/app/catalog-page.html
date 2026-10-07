@@ -1,0 +1,24 @@
+<section class="mb-8 grid gap-6 rounded-box bg-neutral p-6 text-neutral-content md:grid-cols-[1.4fr_1fr] md:items-end md:p-10">
+  <div><p class="mb-3 text-sm font-semibold text-accent">Catálogo Passatempo</p><h1 class="max-w-xl text-4xl font-bold tracking-tight sm:text-5xl">Histórias para levar para casa.</h1><p class="mt-4 max-w-lg text-neutral-content/75">Explore os títulos por nome, categoria ou ator e conheça os exemplares do acervo.</p></div>
+  <div class="rounded-box border border-neutral-content/20 p-5"><p class="text-sm text-neutral-content/70">No acervo</p><p class="mt-2 text-3xl font-bold">{{ loading() || error() ? '—' : titles().length }} títulos</p><p class="mt-1 text-sm text-neutral-content/70">{{ loading() || error() ? 'Consultando cadastros' : items().length + ' exemplares cadastrados' }}</p></div>
+</section>
+<section aria-labelledby="buscar-titulos">
+  <div class="mb-5 flex flex-wrap items-end justify-between gap-4"><div><h2 id="buscar-titulos" class="text-2xl font-bold">Encontre um filme</h2><p class="mt-1 text-sm text-base-content/65">Busque nos títulos cadastrados.</p></div>@if (!loading() && !error()) { <span class="text-sm text-base-content/60" role="status">{{ filtered().length }} resultado(s)</span> }</div>
+  <div class="mb-7 grid gap-3 rounded-box border border-base-300 bg-base-100 p-4 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr]">
+    <label class="block"><span class="mb-1 block text-sm font-medium">Nome do título</span><input class="input w-full" type="search" placeholder="Ex.: Interestelar" [ngModel]="name()" (ngModelChange)="name.set($event)" /></label>
+    <label class="block"><span class="mb-1 block text-sm font-medium">Categoria</span><select class="select w-full" [ngModel]="category()" (ngModelChange)="category.set($event)"><option value="">Todas</option>@for (option of categories(); track option) { <option [value]="option">{{ option }}</option> }</select></label>
+    <label class="block"><span class="mb-1 block text-sm font-medium">Ator ou atriz</span><input class="input w-full" type="search" placeholder="Nome no elenco" [ngModel]="actor()" (ngModelChange)="actor.set($event)" /></label>
+  </div>
+  @if (loading()) { <div class="flex items-center gap-3 py-10" role="status"><span class="loading loading-spinner" aria-hidden="true"></span>Carregando catálogo...</div> }
+  @else if (error()) { <div class="alert alert-error" role="alert">{{ error() }}</div><button class="btn mt-4" (click)="load()">Tentar novamente</button> }
+  @else if (filtered().length) {
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">@for (title of filtered(); track title.id) {
+      <article class="card card-border overflow-hidden bg-base-100"><div class="poster poster-teal aspect-[4/3]"><span class="max-w-48 text-2xl font-bold leading-tight">{{ title.name }}</span></div>
+        <div class="card-body gap-2"><p class="text-sm text-base-content/60">{{ title.category }} · {{ title.year }}</p><h3 class="card-title text-lg">{{ title.name }}</h3>
+          <p class="text-sm">{{ itemCounts().get(title.id) || 0 }} exemplares cadastrados</p><p class="text-sm">{{ title.rentalClass.price | currency:'BRL' }} por {{ title.rentalClass.days }} dia(s)</p>
+          <div class="card-actions mt-3"><a class="btn btn-sm btn-ghost" [routerLink]="['/catalogo', title.id]" [attr.aria-label]="'Ver detalhes de ' + title.name">Ver detalhes</a></div>
+        </div>
+      </article>
+    }</div>
+  } @else { <div role="status" class="rounded-box border border-dashed border-base-300 bg-base-100 p-10 text-center"><h3 class="text-lg font-semibold">Nenhum título encontrado</h3><p class="mt-1 text-sm text-base-content/65">Tente outros filtros ou cadastre um título na área de acervo.</p><a routerLink="/acervo/titulos" class="btn btn-sm mt-4">Abrir acervo</a></div> }
+</section>

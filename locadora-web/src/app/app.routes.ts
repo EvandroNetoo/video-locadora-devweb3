@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
 import { CatalogPage } from './catalog-page';
 import { TitlePage } from './title-page';
-import { SectionPage } from './section-page';
+import { TitlesPage } from './titles-page';
+import { ItemsPage } from './items-page';
 import { ReferencePage } from './reference-page';
 import { CustomersPage } from './customers-page';
 import { CustomerPage } from './customer-page';
@@ -15,7 +16,9 @@ export const routes: Routes = [
   { path: 'acervo/atores', component: ReferencePage, data: { kind: 'atores' } },
   { path: 'acervo/diretores', component: ReferencePage, data: { kind: 'diretores' } },
   { path: 'acervo/classes', component: ReferencePage, data: { kind: 'classes' } },
-  { path: 'acervo/:section', component: SectionPage },
+  { path: 'acervo/titulos', component: TitlesPage },
+  { path: 'acervo/itens', component: ItemsPage },
+  { path: 'acervo', pathMatch: 'full', redirectTo: 'acervo/titulos' },
   { path: 'clientes', component: CustomersPage },
   { path: 'clientes/novo', component: CustomerPage },
   { path: 'clientes/:id', component: CustomerPage },

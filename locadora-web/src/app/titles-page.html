@@ -1,0 +1,98 @@
+<div class="mb-6">
+  <p class="text-sm text-base-content/60">Área de atendimento / Acervo</p>
+  <h1 class="mt-1 text-3xl font-bold">Títulos</h1>
+  <p class="mt-2 text-base-content/65">Consulte e mantenha os títulos do acervo.</p>
+</div>
+<app-acervo-nav />
+@if (feedback()) { <div class="alert alert-success mb-5" role="status">{{ feedback() }}</div> }
+<div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
+  <section class="min-w-0 rounded-box border border-base-300 bg-base-100" aria-labelledby="records-title">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-base-300 p-5">
+      <div><h2 id="records-title" class="text-xl font-bold">Títulos cadastrados</h2><p class="text-sm text-base-content/60">{{ records().length }} resultado(s)</p></div>
+      <a class="btn btn-sm" [routerLink]="busy() ? null : ['/acervo/titulos']" [queryParams]="{ novo: 1 }" [attr.aria-disabled]="busy()">Novo título</a>
+    </div>
+    <form class="grid gap-3 border-b border-base-300 p-5 sm:grid-cols-2" (ngSubmit)="loadList()">
+      <label class="block"><span class="mb-1 block text-sm font-medium">Nome</span><input class="input w-full" type="search" name="filterName" [(ngModel)]="filterName" placeholder="Buscar pelo nome" /></label>
+      <label class="block"><span class="mb-1 block text-sm font-medium">Categoria</span><input class="input w-full" name="filterCategory" [(ngModel)]="filterCategory" placeholder="Categoria exata" /></label>
+      <label class="block"><span class="mb-1 block text-sm font-medium">Ator ou atriz</span><select class="select w-full" name="filterActorId" [(ngModel)]="filterActorId"><option [ngValue]="null">Todos</option>@for (actor of actors(); track actor.id) { <option [ngValue]="actor.id">{{ actor.name }}</option> }</select></label>
+      <button class="btn self-end" type="submit" [disabled]="loading()">Buscar</button>
+    </form>
+    @if (loading()) { <div class="flex items-center gap-3 p-5" role="status"><span class="loading loading-spinner" aria-hidden="true"></span>Carregando títulos...</div> }
+    @else if (listError()) { <div class="p-5"><div class="alert alert-error" role="alert">{{ listError() }}</div><button class="btn btn-sm mt-4" (click)="loadList()">Tentar novamente</button></div> }
+    @else if (!records().length) { <div class="p-10 text-center" role="status"><h3 class="font-semibold">Nenhum título encontrado</h3><p class="mt-1 text-sm text-base-content/65">Revise os filtros ou cadastre um novo título.</p></div> }
+    @else {
+      <div class="overflow-x-auto"><table class="table"><caption class="sr-only">Títulos cadastrados</caption>
+        <thead><tr><th scope="col">Título</th><th scope="col">Categoria / ano</th><th scope="col">Classe</th><th scope="col"><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>@for (record of records(); track record.id) {
+          <tr><td class="font-medium">{{ record.name }}</td><td>{{ record.category }} · {{ record.year }}</td><td>{{ record.rentalClass.name }}</td>
+            <td><a class="btn btn-ghost btn-sm" [routerLink]="busy() ? null : ['/acervo/titulos']" [queryParams]="{ id: record.id }" [attr.aria-label]="'Editar ' + record.name">Detalhes</a></td></tr>
+        }</tbody>
+      </table></div>
+    }
+  </section>
+  <aside class="min-w-0 rounded-box border border-base-300 bg-base-100 p-5" aria-label="Formulário de título">
+    @if (mode() === 'idle') {
+      <div class="py-10 text-center"><h2 class="text-lg font-bold">Selecione um título</h2><p class="mt-2 text-sm text-base-content/65">Veja os detalhes ou inicie um novo cadastro.</p></div>
+    } @else {
+      <div class="mb-5 flex items-start justify-between gap-2">
+        <div><p class="text-sm text-base-content/60">{{ mode() === 'new' ? 'Novo cadastro' : 'Editar cadastro' }}</p><h2 class="text-xl font-bold">{{ mode() === 'new' ? 'Cadastrar título' : selected()?.name || 'Título' }}</h2></div>
+        <a class="btn btn-ghost btn-sm" [routerLink]="busy() ? null : ['/acervo/titulos']" aria-label="Fechar formulário">✕</a>
+      </div>
+      @if (detailLoading() || optionsLoading()) { <div class="flex items-center gap-3 py-5" role="status"><span class="loading loading-spinner" aria-hidden="true"></span>Carregando cadastro...</div> }
+      @else if (detailError()) { <div class="alert alert-error" role="alert">{{ detailError() }}</div><button class="btn btn-sm mt-4" (click)="retryDetail()">Tentar novamente</button> }
+      @else if (optionsError()) { <div class="alert alert-error" role="alert">{{ optionsError() }}</div><button class="btn btn-sm mt-4" (click)="loadOptions()">Carregar opções novamente</button> }
+      @else {
+        @if (missingReferences()) {
+          <div class="alert alert-warning mb-4" role="status"><div>Cadastre pelo menos um ator, um diretor e uma classe antes de salvar um título.
+            <div class="mt-2 flex flex-wrap gap-3"><a class="link" routerLink="/acervo/atores">Atores</a><a class="link" routerLink="/acervo/diretores">Diretores</a><a class="link" routerLink="/acervo/classes">Classes</a></div>
+          </div></div>
+        }
+        <form #form="ngForm" (ngSubmit)="save(form)">
+          <fieldset class="space-y-4" [disabled]="busy()">
+            <legend class="sr-only">Dados do título. Todos os campos são obrigatórios.</legend>
+            <label class="block"><span class="mb-1 block text-sm font-medium">Nome do título *</span>
+              <input class="input w-full" name="name" [(ngModel)]="formName" #name="ngModel" required maxlength="200" [attr.aria-invalid]="name.invalid && name.touched || fieldErrors()['name'] ? true : null" aria-describedby="name-error" />
+              <span id="name-error" class="mt-1 block text-sm text-error">{{ fieldErrors()['name'] || (name.invalid && name.touched ? 'Informe o nome do título.' : '') }}</span>
+            </label>
+            <label class="block"><span class="mb-1 block text-sm font-medium">Ano *</span>
+              <input class="input w-full" type="number" name="year" [(ngModel)]="formYear" #year="ngModel" required min="1" max="9999" step="1" [attr.aria-invalid]="year.invalid && year.touched || fieldErrors()['year'] ? true : null" aria-describedby="year-error" />
+              <span id="year-error" class="mt-1 block text-sm text-error">{{ fieldErrors()['year'] || (year.invalid && year.touched ? 'Informe um ano entre 1 e 9999.' : '') }}</span>
+            </label>
+            <label class="block"><span class="mb-1 block text-sm font-medium">Categoria *</span>
+              <input class="input w-full" name="category" [(ngModel)]="formCategory" #category="ngModel" required maxlength="120" [attr.aria-invalid]="category.invalid && category.touched || fieldErrors()['category'] ? true : null" aria-describedby="category-error" />
+              <span id="category-error" class="mt-1 block text-sm text-error">{{ fieldErrors()['category'] || (category.invalid && category.touched ? 'Informe a categoria.' : '') }}</span>
+            </label>
+            <label class="block"><span class="mb-1 block text-sm font-medium">Diretor *</span>
+              <select class="select w-full" name="directorId" [(ngModel)]="formDirectorId" #director="ngModel" required [attr.aria-invalid]="director.invalid && director.touched || fieldErrors()['directorId'] ? true : null" aria-describedby="director-error"><option [ngValue]="null">Selecione</option>@for (option of directors(); track option.id) { <option [ngValue]="option.id">{{ option.name }}</option> }</select>
+              <span id="director-error" class="mt-1 block text-sm text-error">{{ fieldErrors()['directorId'] || (director.invalid && director.touched ? 'Selecione o diretor.' : '') }}</span>
+            </label>
+            <label class="block"><span class="mb-1 block text-sm font-medium">Classe *</span>
+              <select class="select w-full" name="classId" [(ngModel)]="formClassId" #rentalClass="ngModel" required [attr.aria-invalid]="rentalClass.invalid && rentalClass.touched || fieldErrors()['classId'] ? true : null" aria-describedby="class-error"><option [ngValue]="null">Selecione</option>@for (option of classes(); track option.id) { <option [ngValue]="option.id">{{ option.name }}</option> }</select>
+              <span id="class-error" class="mt-1 block text-sm text-error">{{ fieldErrors()['classId'] || (rentalClass.invalid && rentalClass.touched ? 'Selecione a classe.' : '') }}</span>
+            </label>
+            <fieldset aria-describedby="actors-help actors-error" [attr.aria-invalid]="!formActorIds.length || fieldErrors()['actorIds'] ? true : null">
+              <legend class="mb-1 text-sm font-medium">Atores e atrizes *</legend><p id="actors-help" class="mb-2 text-xs text-base-content/65">Selecione pelo menos uma pessoa do elenco.</p>
+              <div class="max-h-48 space-y-2 overflow-y-auto rounded-field border border-base-300 p-3">
+                @for (actor of actors(); track actor.id) { <label class="flex items-center gap-3"><input #actorCheckbox class="checkbox checkbox-sm" type="checkbox" [checked]="formActorIds.includes(actor.id)" (change)="toggleActor(actor.id, actorCheckbox.checked)" /><span class="text-sm">{{ actor.name }}</span></label> }
+              </div>
+              <span id="actors-error" class="mt-1 block text-sm text-error">{{ fieldErrors()['actorIds'] }}</span>
+            </fieldset>
+            <label class="block"><span class="mb-1 block text-sm font-medium">Sinopse *</span>
+              <textarea class="textarea w-full" rows="4" name="synopsis" [(ngModel)]="formSynopsis" #synopsis="ngModel" required maxlength="5000" [attr.aria-invalid]="synopsis.invalid && synopsis.touched || fieldErrors()['synopsis'] ? true : null" aria-describedby="synopsis-error"></textarea>
+              <span id="synopsis-error" class="mt-1 block text-sm text-error">{{ fieldErrors()['synopsis'] || (synopsis.invalid && synopsis.touched ? 'Informe a sinopse.' : '') }}</span>
+            </label>
+            @if (actionError()) { <div class="alert alert-error text-sm" role="alert">{{ actionError() }}</div> }
+            <div class="flex flex-wrap gap-2"><button class="btn btn-primary" type="submit" [disabled]="form.invalid || !formActorIds.length || missingReferences()">{{ saving() ? 'Salvando...' : mode() === 'new' ? 'Cadastrar título' : 'Salvar alterações' }}</button>
+              @if (selected()) { <button class="btn btn-error btn-outline" type="button" (click)="confirmDialog.showModal()">Excluir</button> }
+            </div>
+          </fieldset>
+        </form>
+      }
+    }
+  </aside>
+</div>
+<dialog #confirmDialog id="delete-title-dialog" class="modal" aria-labelledby="delete-title-heading" (cancel)="deleting() && $event.preventDefault()">
+  <div class="modal-box"><h3 id="delete-title-heading" class="text-lg font-bold">Excluir título?</h3><p class="mt-3 text-sm">Excluir “{{ selected()?.name }}”? Esta ação não pode ser desfeita. Títulos com itens cadastrados não podem ser excluídos.</p>
+    <div class="modal-action"><form method="dialog"><button class="btn" [disabled]="deleting()">Voltar</button></form><button class="btn btn-error" [disabled]="deleting()" (click)="remove(confirmDialog)">{{ deleting() ? 'Excluindo...' : 'Confirmar exclusão' }}</button></div>
+  </div><form method="dialog" class="modal-backdrop"><button [disabled]="deleting()">Fechar</button></form>
+</dialog>

@@ -1,0 +1,23 @@
+<a routerLink="/catalogo" class="link link-hover text-sm">← Voltar ao catálogo</a>
+@if (loading()) { <div class="mt-6 flex items-center gap-3 py-10" role="status"><span class="loading loading-spinner" aria-hidden="true"></span>Carregando título...</div> }
+@else if (error()) { <div class="alert alert-error mt-6" role="alert">{{ error() }}</div><button class="btn mt-4" (click)="load()">Tentar novamente</button> }
+@else if (title(); as current) {
+  <div class="mt-6 grid gap-8 lg:grid-cols-[300px_1fr]">
+    <div class="poster poster-teal min-h-96 rounded-box"><span class="max-w-60 text-4xl font-bold leading-tight">{{ current.name }}</span></div>
+    <div class="min-w-0"><div class="mb-3 flex flex-wrap gap-2"><span class="badge badge-outline">{{ current.category }}</span><span class="badge badge-outline">{{ current.year }}</span><span class="badge badge-outline">{{ current.rentalClass.name }}</span></div>
+      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">{{ current.name }}</h1><p class="mt-4 max-w-2xl whitespace-pre-line text-base-content/75">{{ current.synopsis }}</p>
+      <dl class="mt-7 grid gap-4 border-y border-base-300 py-6 sm:grid-cols-2">
+        <div><dt class="text-sm text-base-content/60">Direção</dt><dd class="mt-1 font-medium">{{ current.director.name }}</dd></div>
+        <div><dt class="text-sm text-base-content/60">Elenco</dt><dd class="mt-1 font-medium">{{ actors() }}</dd></div>
+        <div><dt class="text-sm text-base-content/60">Valor e prazo da classe</dt><dd class="mt-1 font-medium">{{ current.rentalClass.price | currency:'BRL' }} por {{ current.rentalClass.days }} dia(s)</dd></div>
+        <div><dt class="text-sm text-base-content/60">Exemplares cadastrados</dt><dd class="mt-1 font-medium">{{ items().length }}</dd></div>
+      </dl>
+      <div class="mt-6 flex flex-wrap gap-3"><a class="btn" routerLink="/acervo/titulos" [queryParams]="{ id: current.id }">Editar título</a><a class="btn btn-ghost" routerLink="/acervo/itens">Gerenciar itens</a></div>
+    </div>
+  </div>
+  <section class="mt-8 rounded-box border border-base-300 bg-base-100" aria-labelledby="items-heading">
+    <h2 id="items-heading" class="border-b border-base-300 p-5 text-xl font-bold">Exemplares do título</h2>
+    @if (!items().length) { <p class="p-5 text-base-content/65" role="status">Este título ainda não possui exemplares cadastrados.</p> }
+    @else { <div class="overflow-x-auto"><table class="table"><caption class="sr-only">Exemplares de {{ current.name }}</caption><thead><tr><th scope="col">Número de série</th><th scope="col">Tipo</th><th scope="col">Data de aquisição</th></tr></thead><tbody>@for (item of items(); track item.id) { <tr><td>{{ item.serialNumber }}</td><td>{{ typeLabel(item.type) }}</td><td>{{ item.acquisitionDate | date:'dd/MM/yyyy' }}</td></tr> }</tbody></table></div> }
+  </section>
+}

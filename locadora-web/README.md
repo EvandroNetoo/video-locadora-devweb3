@@ -7,10 +7,15 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 To start a local development server, run:
 
 ```bash
-ng serve
+npm start
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+
+Start `locadora-api` on port 8080 first. `npm start` loads `proxy.conf.json` to forward
+requests under `/api` to the backend. Catalog, title details, and the actor, director,
+class, title and physical item CRUD pages use the API. Customers and rentals still use
+demonstration data.
 
 ## Code scaffolding
 

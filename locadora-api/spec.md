@@ -1,6 +1,8 @@
 # Especificação da API
 
-Esta especificação detalha a responsabilidade da API descrita em [../spec.md](../spec.md). É um contrato funcional proposto para implementação; nenhum endpoint de negócio existe ainda. O projeto atual usa Java 21, Spring Boot 4.1.1 e Maven. A persistência e seu banco ainda não foram escolhidos no código.
+Esta especificação detalha a responsabilidade da API descrita em [../spec.md](../spec.md). O projeto usa Java 21, Spring Boot 4.1.1, Maven e persistência JPA com H2 em arquivo. Os CRUDs de atores, diretores, classes, títulos e itens estão implementados sob `/api`, com documentação Swagger em `/swagger-ui.html` e OpenAPI em `/v3/api-docs`. Clientes e locações continuam previstos para implementação.
+
+Títulos aceitam os campos `name`, `year`, `synopsis`, `category`, `directorId`, `classId` e `actorIds`; suas respostas incluem os dados do diretor, da classe e dos atores. Itens aceitam `serialNumber`, `titleId`, `acquisitionDate` e `type` (`FITA`, `DVD` ou `BLU_RAY`). As listagens de títulos permitem filtros por `name`, `category` e `actorId`; as de itens, por `titleId`, `type` e `serialNumber`. Busca por nome original e disponibilidade dependem de definições e módulos posteriores.
 
 ## Recursos do domínio
 

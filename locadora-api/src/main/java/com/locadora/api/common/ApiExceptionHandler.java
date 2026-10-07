@@ -9,6 +9,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -25,7 +26,7 @@ public class ApiExceptionHandler {
         return ResponseEntity.badRequest().body(Map.of("message", "Revise os campos informados", "fields", fields));
     }
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
     public ResponseEntity<Map<String, String>> malformed() {
         return ResponseEntity.badRequest().body(Map.of("message", "Dados inválidos ou incompletos"));
     }
@@ -33,6 +34,11 @@ public class ApiExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, String>> conflict() {
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(Map.of("message", "O registro possui vínculos e não pode ser excluído"));
+                .body(Map.of("message", "O registro possui vínculos ou dados que já estão cadastrados"));
+    }
+
+    @ExceptionHandler(ResourceConflictException.class)
+    public ResponseEntity<Map<String, String>> conflict(ResourceConflictException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", exception.getMessage()));
     }
 }

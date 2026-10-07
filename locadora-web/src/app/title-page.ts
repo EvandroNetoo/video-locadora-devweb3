@@ -1,27 +1,42 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { CurrencyPipe, DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { titles } from './demo-data';
+import { Subscription, forkJoin } from 'rxjs';
+import { apiErrorMessage } from './api-error';
+import { ItemRecord, ItemType, StockApi, TitleRecord, itemTypes } from './stock-api';
 
 @Component({
-  selector: 'app-title-page', imports: [RouterLink], changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <a routerLink="/catalogo" class="link link-hover text-sm">← Voltar ao catálogo</a>
-    @if (title) {
-      <div class="mt-6 grid gap-8 lg:grid-cols-[300px_1fr]">
-        <div class="poster min-h-96 rounded-box" [class]="title.poster"><span class="max-w-60 text-4xl font-bold leading-tight">{{ title.name }}</span></div>
-        <div><div class="mb-3 flex flex-wrap gap-2"><span class="badge badge-outline">{{ title.category }}</span><span class="badge badge-outline">{{ title.year }}</span><span class="badge badge-outline">{{ title.className }}</span></div>
-          <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">{{ title.name }}</h1><p class="mt-4 max-w-2xl text-base-content/75">{{ title.synopsis }}</p>
-          <dl class="mt-7 grid gap-4 border-y border-base-300 py-6 sm:grid-cols-2">
-            <div><dt class="text-sm text-base-content/60">Direção</dt><dd class="mt-1 font-medium">{{ title.director }}</dd></div>
-            <div><dt class="text-sm text-base-content/60">Elenco</dt><dd class="mt-1 font-medium">{{ title.actors.join(', ') }}</dd></div>
-            <div><dt class="text-sm text-base-content/60">Valor da classe</dt><dd class="mt-1 font-medium">{{ title.price }}</dd></div>
-            <div><dt class="text-sm text-base-content/60">Exemplares disponíveis</dt><dd class="mt-1 font-medium">{{ title.available }} de {{ title.total }}</dd></div>
-          </dl><div class="alert mt-6" [class.alert-success]="title.available > 0" [class.alert-warning]="title.available === 0" role="status">{{ title.available > 0 ? 'Há exemplares disponíveis para locação no balcão.' : 'Todos os exemplares estão locados no momento.' }}</div>
-        </div>
-      </div>
-    } @else { <div class="alert alert-warning mt-6" role="status">Título de demonstração não encontrado.</div> }`,
+  selector: 'app-title-page',
+  imports: [CurrencyPipe, DatePipe, RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './title-page.html',
 })
 export class TitlePage {
   private readonly route = inject(ActivatedRoute);
-  readonly title = titles.find((title) => title.id === Number(this.route.snapshot.paramMap.get('id')));
+  private readonly api = inject(StockApi);
+  private readonly destroyRef = inject(DestroyRef);
+  private request?: Subscription;
+  readonly title = signal<TitleRecord | null>(null);
+  readonly items = signal<ItemRecord[]>([]);
+  readonly loading = signal(false);
+  readonly error = signal('');
+  readonly actors = computed(() => this.title()?.actors.map((actor) => actor.name).join(', ') ?? '');
+
+  constructor() { this.route.paramMap.pipe(takeUntilDestroyed()).subscribe(() => this.load()); }
+
+  typeLabel(type: ItemType): string { return itemTypes.find((option) => option.value === type)?.label ?? type; }
+
+  load(): void {
+    this.request?.unsubscribe();
+    this.title.set(null); this.items.set([]); this.error.set('');
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    if (!Number.isSafeInteger(id) || id <= 0) { this.loading.set(false); this.error.set('Título não encontrado.'); return; }
+    this.loading.set(true);
+    this.request = forkJoin({ title: this.api.getTitle(id), items: this.api.listItems({ titleId: id }) })
+      .pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: (data) => { this.title.set(data.title); this.items.set(data.items); this.loading.set(false); },
+        error: (error: unknown) => { this.error.set(apiErrorMessage(error)); this.loading.set(false); },
+      });
+  }
 }
